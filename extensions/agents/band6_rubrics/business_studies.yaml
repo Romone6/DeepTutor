@@ -1,0 +1,162 @@
+subject: business_studies
+display_name: Business Studies
+hsc_band: 6
+description: Band 6 represents excellent achievement.
+dimensions:
+- name: Clarity of Business Expression
+  weight: 0.15
+  description: Clear and precise expression
+  criteria:
+  - id: cl1
+    description: Uses accurate business terminology
+    indicators:
+    - Correct business terms
+    - Financial terminology
+    - No confusion
+    pass_threshold: 0.8
+  - id: cl2
+    description: Constructs clear business arguments
+    indicators:
+    - Logical flow
+    - Cause-effect clear
+    - Systematic approach
+    pass_threshold: 0.7
+  - id: cl3
+    description: Communicates business ideas clearly
+    indicators:
+    - Explains concepts
+    - Uses examples
+    - Structured
+    pass_threshold: 0.7
+- name: Business Knowledge Accuracy
+  weight: 0.2
+  description: Accurate knowledge application
+  criteria:
+  - id: ac1
+    description: Demonstrates accurate knowledge
+    indicators:
+    - Correct concepts
+    - Theory accurate
+    - No misconceptions
+    pass_threshold: 0.85
+  - id: ac2
+    description: Applies business tools correctly
+    indicators:
+    - Appropriate frameworks
+    - Correct calculations
+    - Right tool chosen
+    pass_threshold: 0.8
+  - id: ac3
+    description: Interprets business data accurately
+    indicators:
+    - Financial statements
+    - Ratios interpreted
+    - Graphs read correctly
+    pass_threshold: 0.8
+- name: Depth of Analysis
+  weight: 0.2
+  description: Sophisticated analysis
+  criteria:
+  - id: dp1
+    description: Critical analysis of strategies
+    indicators:
+    - Evaluates effectiveness
+    - Multiple factors
+    - Links theory to practice
+    pass_threshold: 0.7
+  - id: dp2
+    description: Multiple perspectives
+    indicators:
+    - Stakeholder views
+    - Social impacts
+    - Short/long-term
+    pass_threshold: 0.7
+  - id: dp3
+    description: Reasoned judgments
+    indicators:
+    - Evidence-based conclusions
+    - Justified recommendations
+    - Risks considered
+    pass_threshold: 0.7
+- name: Evidence and Case Studies
+  weight: 0.15
+  description: Effective use of evidence
+  criteria:
+  - id: ev1
+    description: Uses case study evidence
+    indicators:
+    - Case selection
+    - Relevant facts
+    - Theory linked
+    pass_threshold: 0.7
+  - id: ev2
+    description: Uses data effectively
+    indicators:
+    - Financial data
+    - Ratios support conclusions
+    - Data relevant
+    pass_threshold: 0.7
+  - id: ev3
+    description: Contemporary examples
+    indicators:
+    - Current cases
+    - Recent developments
+    - Real applications
+    pass_threshold: 0.7
+- name: Structural Effectiveness
+  weight: 0.15
+  description: Well-organised response
+  criteria:
+  - id: st1
+    description: Clear structure
+    indicators:
+    - Intro with context
+    - Structured body
+    - Conclusion with recommendation
+    pass_threshold: 0.7
+  - id: st2
+    description: Logical content
+    indicators:
+    - Cohesive paragraphs
+    - Clear progression
+    - Effective headings
+    pass_threshold: 0.7
+  - id: st3
+    description: Balanced treatment
+    indicators:
+    - All parts addressed
+    - Equal depth
+    - No irrelevant content
+    pass_threshold: 0.7
+- name: Subject-Specific
+  weight: 0.15
+  description: Business Studies criteria
+  criteria:
+  - id: ss1
+    description: Business functions
+    indicators:
+    - Operations
+    - Marketing
+    - Finance understood
+    pass_threshold: 0.7
+  - id: ss2
+    description: Ethics and CSR
+    indicators:
+    - Ethical considerations
+    - CSR practices
+    - Sustainability
+    pass_threshold: 0.7
+  - id: ss3
+    description: Business structure
+    indicators:
+    - Ownership types
+    - Corporate governance
+    - Global context
+    pass_threshold: 0.7
+band_thresholds:
+  band_6: 90
+  band_5: 80
+  band_4: 70
+  band_3: 60
+  band_2: 50
+  band_1: 0

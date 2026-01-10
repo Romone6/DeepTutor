@@ -1,0 +1,162 @@
+subject: chemistry
+display_name: Chemistry
+hsc_band: 6
+description: Band 6 represents excellent achievement in Chemistry.
+dimensions:
+- name: Clarity of Expression
+  weight: 0.15
+  description: Clear chemistry expression
+  criteria:
+  - id: cl1
+    description: Chemical terminology
+    indicators:
+    - IUPAC names
+    - Formula writing
+    - Chemical symbols
+    pass_threshold: 0.9
+  - id: cl2
+    description: Explains concepts
+    indicators:
+    - Logical structure
+    - Scientific language
+    - Clear descriptions
+    pass_threshold: 0.85
+  - id: cl3
+    description: Complex ideas
+    indicators:
+    - Appropriate models
+    - Mechanisms clear
+    - Molecular processes
+    pass_threshold: 0.8
+- name: Chemical Accuracy
+  weight: 0.25
+  description: Accurate chemistry knowledge
+  criteria:
+  - id: ac1
+    description: Accurate knowledge
+    indicators:
+    - Correct principles
+    - Bonding/structure
+    - No reaction misconceptions
+    pass_threshold: 0.9
+  - id: ac2
+    description: Accurate calculations
+    indicators:
+    - Correct stoichiometry
+    - Concentration work
+    - Yield calculations
+    pass_threshold: 0.9
+  - id: ac3
+    description: Chemical equations
+    indicators:
+    - Balanced equations
+    - Correct states
+    - Appropriate notation
+    pass_threshold: 0.9
+- name: Depth of Understanding
+  weight: 0.2
+  description: Sophisticated understanding
+  criteria:
+  - id: dp1
+    description: Underlying principles
+    indicators:
+    - Explains reactions
+    - Structure to properties
+    - Kinetics/equilibrium
+    pass_threshold: 0.85
+  - id: dp2
+    description: New situations
+    indicators:
+    - Predicts outcomes
+    - Unfamiliar problems
+    - Concept transfer
+    pass_threshold: 0.85
+  - id: dp3
+    description: Industrial chemistry
+    indicators:
+    - Industrial processes
+    - Economic factors
+    - Environmental impacts
+    pass_threshold: 0.8
+- name: Use of Evidence
+  weight: 0.15
+  description: Effective use of evidence
+  criteria:
+  - id: ev1
+    description: Data and observations
+    indicators:
+    - Experimental data
+    - Evidence to conclusions
+    - Result reliability
+    pass_threshold: 0.85
+  - id: ev2
+    description: Evidence to principles
+    indicators:
+    - Observations to theory
+    - Experimental explanation
+    - Predictions from evidence
+    pass_threshold: 0.8
+  - id: ev3
+    description: Mandatory practicals
+    indicators:
+    - References practicals
+    - Experimental chemistry
+    - Theory to experiment
+    pass_threshold: 0.8
+- name: Response Structure
+  weight: 0.15
+  description: Well-organised response
+  criteria:
+  - id: st1
+    description: Clear organisation
+    indicators:
+    - Structured intro
+    - Logical progression
+    - Clear conclusion
+    pass_threshold: 0.85
+  - id: st2
+    description: Reaction presentation
+    indicators:
+    - Clear mechanisms
+    - Sequenced steps
+    - Equations integrated
+    pass_threshold: 0.85
+  - id: st3
+    description: Diagrams and equations
+    indicators:
+    - Structural formulas
+    - Energy profiles
+    - Molecular diagrams
+    pass_threshold: 0.8
+- name: Subject-Specific
+  weight: 0.1
+  description: Chemistry criteria
+  criteria:
+  - id: ss1
+    description: Core modules
+    indicators:
+    - Atomic structure
+    - Equilibrium
+    - Organic chemistry
+    pass_threshold: 0.85
+  - id: ss2
+    description: Calculations
+    indicators:
+    - Mole calculations
+    - Concentration
+    - Yield
+    pass_threshold: 0.9
+  - id: ss3
+    description: Sustainability
+    indicators:
+    - Green chemistry
+    - Environmental
+    - Industrial applications
+    pass_threshold: 0.8
+band_thresholds:
+  band_6: 90
+  band_5: 80
+  band_4: 70
+  band_3: 60
+  band_2: 50
+  band_1: 0

@@ -136,3 +136,20 @@ research:
         iteration_mode: flexible
       reporting:
         min_section_length: 500
+
+# ============================================================================
+# POLICY MODES
+# ============================================================================
+# Controls strictness, depth, hinting, and active recall behavior
+# Options: holiday (relaxed), term (standard), exam (strict)
+policies:
+  default_mode: term
+  available_modes:
+    - holiday
+    - term
+    - exam
+  session:
+    # Default subject for new sessions (can be overridden per session)
+    default_subject: hsc_math_adv
+    # Maximum session duration in minutes (0 = no limit)
+    max_duration_minutes: 0

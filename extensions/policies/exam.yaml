@@ -1,0 +1,198 @@
+policy_id: exam
+name: Exam / Test Preparation
+description: |
+  Strict exam preparation mode for test practice.
+  - Minimal hints, self-reliant problem solving
+  - Precise, exam-style feedback
+  - High active recall emphasis
+  - Time-pressured simulations
+  - No exploration - focused practice
+
+version: 1.0.0
+effective_date: "2024-01-01"
+
+# ============================================================================
+# HINTING BEHAVIOR
+# ============================================================================
+hinting:
+  # How many hints to provide before giving answer
+  max_hints: 1
+  # Minimum hints to provide
+  min_hints: 0
+  # Hint granularity: coarse, medium, fine, complete
+  hint_granularity: coarse
+  # Whether to provide examples in hints
+  include_examples: false
+  # Whether to provide step-by-step scaffolding
+  scaffold_steps: false
+  # Allow user to skip hints and get direct answer
+  allow_skip_hints: false
+
+# ============================================================================
+# STRICTNESS / GRADING
+# ============================================================================
+strictness:
+  # Error tolerance level: high, medium, low
+  error_tolerance: low
+  # How strictly to evaluate answers
+  evaluation_strictness: 0.95  # 0.0 (lenient) to 1.0 (strict)
+  # Whether to mark partial credit
+  partial_credit: false
+  # Minimum score for "correct" (0-1)
+  pass_threshold: 0.85
+  # Whether to deduct points for mistakes
+  penalize_mistakes: true
+  # Feedback verbosity: brief, detailed, comprehensive
+  feedback_verbosity: brief
+  # Whether to explain why an answer is wrong
+  explain_errors: false
+
+# ============================================================================
+# ACTIVE RECALL
+# ============================================================================
+active_recall:
+  # Frequency of recall prompts: never, rare, sometimes, often, always
+  recall_frequency: often
+  # Whether to start with recall questions
+  start_with_recall: true
+  # Spaced repetition enabled
+  spaced_repetition: true
+  # Minimum间隔 between repeated concepts (hours)
+  repeat_interval_hours: 24
+  # Whether to quiz on previous sessions
+  quiz_previous: true
+
+# ============================================================================
+# DEPTH / EXPLANATION
+# ============================================================================
+depth:
+  # Explanation depth: brief, standard, comprehensive, exhaustive
+  explanation_depth: brief
+  # Whether to provide background context
+  include_background: false
+  # Whether to provide real-world applications
+  include_applications: false
+  # Whether to connect to related concepts
+  connect_concepts: false
+  # Maximum explanation length (chars, 0 = unlimited)
+  max_explanation_chars: 500
+  # Whether to ask follow-up questions
+  ask_followups: false
+  # Number of follow-up suggestions
+  followup_count: 0
+
+# ============================================================================
+# ENGAGEMENT
+# ============================================================================
+engagement:
+  # Tone: encouraging, neutral, demanding
+  tone: demanding
+  # Use emojis and celebration
+  use_emoji: false
+  # Celebration on correct answers
+  celebrate_success: false
+  # Encouragement on mistakes
+  encourage_mistakes: false
+  # Allow off-topic exploration
+  allow_exploration: false
+  # Maximum session duration warning (minutes, 0 = no warning)
+  session_warning_minutes: 60
+
+# ============================================================================
+# TIME BEHAVIOR
+# ============================================================================
+time:
+  # Time pressure: none, low, medium, high
+  time_pressure: high
+  # Whether to show countdown timer
+  show_timer: true
+  # Time per question guidance (seconds, 0 = no guidance)
+  time_per_question: 120
+  # Auto-submit on timeout
+  auto_submit: true
+  # Grace period extension available
+  allow_extension: false
+
+# ============================================================================
+# CHECKPOINT BEHAVIOR
+# ============================================================================
+checkpoints:
+  # Frequency of comprehension checks: never, sometimes, regular, frequent
+  check_frequency: frequent
+  # Minimum checkpoints per session
+  min_checkpoints: 3
+  # Maximum checkpoints per session
+  max_checkpoints: 6
+  # Types of checkpoints: quiz, self_assessment, reflection
+  checkpoint_types:
+    - quiz
+  # Allow skipping checkpoints
+  allow_skip: false
+
+# ============================================================================
+# RESPONSE PROFILE (applied to LLM prompts)
+# ============================================================================
+response_profile:
+  # System prompt suffix for this policy
+  system_prompt_suffix: |
+    You are an exam preparation tutor in strict test mode.
+    Provide minimal guidance - students must demonstrate self-reliance.
+    Use precise, exam-style feedback without elaboration.
+    Focus on accuracy and efficiency.
+    Start with recall questions to test knowledge retention.
+    Maintain a professional, demanding tone.
+    Do not provide extra examples, applications, or background context.
+    Expect high standards and precise answers.
+
+  # Temperature for LLM calls (higher = more creative)
+  temperature: 0.3
+  # Maximum tokens for responses
+  max_tokens: 500
+  # Format: markdown, plain, structured
+  response_format: structured
+
+# ============================================================================
+# MODULE-SPECIFIC OVERRIDES
+# ============================================================================
+modules:
+  solve:
+    # Allow extended solving time
+    extended_time: false
+    # Show intermediate steps
+    show_intermediate: false
+    # Provide solution hints
+    provide_hints: false
+    # Allow tool access
+    allow_tools: false
+
+  guide:
+    # Allow free navigation
+    free_navigation: false
+    # Provide optional challenges
+    optional_challenges: false
+    # Allow revisiting concepts
+    allow_revisit: false
+
+  question:
+    # Allow multiple attempts
+    max_attempts: 1
+    # Show correct answer after attempts
+    reveal_after_attempts: 1
+    # Practice mode (no scoring)
+    practice_mode: false
+
+  research:
+    # Allow broad exploration
+    broad_exploration: false
+    # Include optional deep dives
+    optional_deep_dives: false
+    # Time for exploration
+    exploration_time: none
+
+  co_writer:
+    # Allow creative freedom
+    creative_freedom: false
+    # Provide writing suggestions
+    suggestions: false
+    # Focus on improvement, not perfection
+    improvement_focus: false

@@ -1,0 +1,162 @@
+subject: biology
+display_name: Biology
+hsc_band: 6
+description: Band 6 represents excellent achievement in Biology.
+dimensions:
+- name: Clarity of Expression
+  weight: 0.15
+  description: Clear scientific expression
+  criteria:
+  - id: cl1
+    description: Biological terminology
+    indicators:
+    - Correct terms
+    - Scientific names
+    - No confusion
+    pass_threshold: 0.85
+  - id: cl2
+    description: Explains concepts clearly
+    indicators:
+    - Logical structure
+    - Scientific language
+    - Appropriate detail
+    pass_threshold: 0.8
+  - id: cl3
+    description: Complex ideas effectively
+    indicators:
+    - Appropriate analogies
+    - Mechanisms clear
+    - Sequenced processes
+    pass_threshold: 0.8
+- name: Scientific Accuracy
+  weight: 0.25
+  description: Accurate biological knowledge
+  criteria:
+  - id: ac1
+    description: Accurate knowledge
+    indicators:
+    - Correct facts
+    - Processes accurate
+    - No misconceptions
+    pass_threshold: 0.9
+  - id: ac2
+    description: Accurate processes
+    indicators:
+    - Sequence correct
+    - Locations correct
+    - Cause-effect
+    pass_threshold: 0.9
+  - id: ac3
+    description: Scientific conventions
+    indicators:
+    - Units correct
+    - Diagrams support
+    - Data interpreted
+    pass_threshold: 0.85
+- name: Depth of Understanding
+  weight: 0.2
+  description: Sophisticated understanding
+  criteria:
+  - id: dp1
+    description: Underlying principles
+    indicators:
+    - Explains why
+    - Structure to function
+    - Mechanisms shown
+    pass_threshold: 0.8
+  - id: dp2
+    description: New situations
+    indicators:
+    - Adapts concepts
+    - Makes predictions
+    - Novel problems solved
+    pass_threshold: 0.8
+  - id: dp3
+    description: Contemporary issues
+    indicators:
+    - Biotechnology
+    - Environmental impacts
+    - Scientific developments
+    pass_threshold: 0.75
+- name: Use of Evidence
+  weight: 0.15
+  description: Effective use of evidence
+  criteria:
+  - id: ev1
+    description: Relevant examples
+    indicators:
+    - Specific examples
+    - Real applications
+    - Case studies
+    pass_threshold: 0.75
+  - id: ev2
+    description: Data and evidence
+    indicators:
+    - Experimental data
+    - Evidence supports
+    - Reliability considered
+    pass_threshold: 0.8
+  - id: ev3
+    description: Scientific literature
+    indicators:
+    - Cites studies
+    - Recent research
+    - Acknowledges limits
+    pass_threshold: 0.75
+- name: Response Structure
+  weight: 0.15
+  description: Well-organised response
+  criteria:
+  - id: st1
+    description: Clear intro/conclusion
+    indicators:
+    - States concepts
+    - Summarises findings
+    - Direct answer
+    pass_threshold: 0.8
+  - id: st2
+    description: Logical progression
+    indicators:
+    - Cohesive paragraphs
+    - Topic development
+    - Effective transitions
+    pass_threshold: 0.8
+  - id: st3
+    description: Diagrams and visuals
+    indicators:
+    - Diagrams support
+    - Labels accurate
+    - Graphs interpreted
+    pass_threshold: 0.75
+- name: Subject-Specific
+  weight: 0.1
+  description: Biology criteria
+  criteria:
+  - id: ss1
+    description: Core modules
+    indicators:
+    - Cells and DNA
+    - Homeostasis
+    - Ecosystems
+    pass_threshold: 0.85
+  - id: ss2
+    description: Scientific methodology
+    indicators:
+    - Experimental design
+    - Data collection
+    - Variables
+    pass_threshold: 0.8
+  - id: ss3
+    description: Ethical considerations
+    indicators:
+    - Bioethics
+    - Environmental ethics
+    - Scientific responsibility
+    pass_threshold: 0.75
+band_thresholds:
+  band_6: 90
+  band_5: 80
+  band_4: 70
+  band_3: 60
+  band_2: 50
+  band_1: 0

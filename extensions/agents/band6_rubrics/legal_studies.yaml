@@ -1,0 +1,151 @@
+subject: legal_studies
+display_name: Legal Studies
+hsc_band: 6
+description: |
+  Band 6 represents excellent achievement in Legal Studies.
+dimensions:
+- name: Clarity of Legal Expression
+  weight: 0.15
+  criteria:
+  - id: cl1
+    description: Uses accurate legal terminology
+    indicators:
+    - Correct legal terms
+    - Appropriate Latin phrases
+    - No confusion
+    pass_threshold: 0.8
+  - id: cl2
+    description: Constructs clear legal arguments
+    indicators:
+    - Logical flow
+    - Clear principles
+    - Systematic application
+    pass_threshold: 0.7
+  - id: cl3
+    description: Communicates legal ideas accessibly
+    indicators:
+    - Explains concepts
+    - Avoids jargon
+    - Structured
+    pass_threshold: 0.7
+- name: Legal Accuracy
+  weight: 0.2
+  criteria:
+  - id: ac1
+    description: Accurate knowledge of law
+    indicators:
+    - Correct principles
+    - Accurate citations
+    - No misconceptions
+    pass_threshold: 0.85
+  - id: ac2
+    description: Accurate application to facts
+    indicators:
+    - Correct identification
+    - Appropriate application
+    - All facts considered
+    pass_threshold: 0.8
+  - id: ac3
+    description: Cites cases accurately
+    indicators:
+    - Correct case names
+    - Section references
+    - Up-to-date
+    pass_threshold: 0.8
+- name: Depth of Legal Analysis
+  weight: 0.2
+  criteria:
+  - id: dp1
+    description: Critical analysis of effectiveness
+    indicators:
+    - Evaluates against aims
+    - Strengths/weaknesses
+    - Evidence-based
+    pass_threshold: 0.7
+  - id: dp2
+    description: Multiple perspectives
+    indicators:
+    - Different viewpoints
+    - Stakeholder interests
+    - Complexity acknowledged
+    pass_threshold: 0.7
+  - id: dp3
+    description: Reasoned judgments
+    indicators:
+    - Conclusions from evidence
+    - Position justified
+    - Implications considered
+    pass_threshold: 0.7
+- name: Evidence and Examples
+  weight: 0.15
+  criteria:
+  - id: ev1
+    description: Uses cases as evidence
+    indicators:
+    - Case selection
+    - Relevant facts
+    - Legal principles
+    pass_threshold: 0.7
+  - id: ev2
+    description: References legislation
+    indicators:
+    - Relevant sections
+    - Explains provisions
+    - Amendments considered
+    pass_threshold: 0.7
+  - id: ev3
+    description: Contemporary examples
+    indicators:
+    - Recent cases
+    - Current issues
+    - Statistics
+    pass_threshold: 0.7
+- name: Structural Effectiveness
+  weight: 0.15
+  criteria:
+  - id: st1
+    description: ILAC structure
+    indicators:
+    - Issue identified
+    - Law stated
+    - Application
+    - Conclusion
+    pass_threshold: 0.7
+  - id: st2
+    description: Logical organisation
+    indicators:
+    - Cohesive paragraphs
+    - Clear progression
+    - Topic sentences
+    pass_threshold: 0.7
+  - id: st3
+    description: Balanced argument
+    indicators:
+    - Both sides
+    - Equal treatment
+    - Clear position
+    pass_threshold: 0.7
+- name: Subject-Specific
+  weight: 0.15
+  criteria:
+  - id: ss1
+    description: Legal institutions
+    indicators:
+    - Role of courts
+    - Parliamentary process
+    - Legal actors
+    pass_threshold: 0.7
+  - id: ss2
+    description: Law reform
+    indicators:
+    - Reform bodies
+    - Methods
+    - Recent reforms
+    pass_threshold: 0.7
+  - id: ss3
+    description: Dispute resolution
+    indicators:
+    - Court hierarchy
+    - ADR options
+    - Venue selection
+    pass_threshold: 0.7

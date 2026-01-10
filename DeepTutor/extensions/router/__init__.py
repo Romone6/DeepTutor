@@ -1,0 +1,1 @@
+"""Extensions router module."""

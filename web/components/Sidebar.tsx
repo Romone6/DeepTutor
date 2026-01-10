@@ -20,6 +20,7 @@ import {
   Globe,
   ChevronsLeft,
   ChevronsRight,
+  ClipboardList,
 } from "lucide-react";
 import { useGlobal } from "@/context/GlobalContext";
 import { getTranslation } from "@/lib/i18n";
@@ -52,6 +53,7 @@ export default function Sidebar() {
         { name: t("Question Generator"), href: "/question", icon: PenTool },
         { name: t("Smart Solver"), href: "/solver", icon: Calculator },
         { name: t("Guided Learning"), href: "/guide", icon: GraduationCap },
+        { name: t("Exam Simulator"), href: "/exam", icon: ClipboardList },
       ],
     },
     {

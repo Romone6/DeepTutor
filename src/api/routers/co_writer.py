@@ -20,7 +20,26 @@ from src.agents.co_writer.edit_agent import (
     load_history,
     print_stats,
 )
-from src.agents.co_writer.narrator_agent import NarratorAgent
+from extensions.agents.band6_rubrics import (
+    load_rubric,
+    evaluate_answer as evaluate_rubric_answer,
+)
+
+
+class RubricCheckRequest(BaseModel):
+    text: str
+    subject: str
+
+
+class RubricCheckResponse(BaseModel):
+    band_estimate: str
+    overall_score: float
+    rubric_checklist: list[dict[str, Any]]
+    top_fixes: list[dict[str, str]]
+    improvement_tips: list[str]
+    feedback_summary: str
+
+
 from src.logging import get_logger
 from src.services.config import load_config_with_main
 from src.services.tts import get_tts_config
@@ -157,6 +176,50 @@ async def export_markdown(content: dict):
             headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/rubric-check")
+async def rubric_check(request: dict):
+    """
+    Check text against Band 6 rubric for self-assessment.
+    """
+    try:
+        text = request.get("text", "")
+        subject = request.get("subject", "")
+
+        if not text:
+            raise HTTPException(status_code=400, detail="Text is required")
+
+        if not subject:
+            raise HTTPException(status_code=400, detail="Subject is required")
+
+        from extensions.agents.band6_rubrics import (
+            load_rubric,
+            evaluate_answer as evaluate_rubric_answer,
+        )
+
+        rubric = load_rubric(subject)
+        if rubric is None:
+            raise HTTPException(status_code=400, detail=f"No rubric for subject: {subject}")
+
+        result = evaluate_rubric_answer(text, subject)
+
+        if result is None:
+            raise HTTPException(status_code=500, detail="Rubric evaluation failed")
+
+        return {
+            "band_estimate": result.band_estimate,
+            "overall_score": round(result.overall_score, 1),
+            "rubric_checklist": result.rubric_checklist,
+            "top_fixes": result.top_fixes,
+            "improvement_tips": result.improvement_tips,
+            "feedback_summary": result.feedback_summary,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Rubric check failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

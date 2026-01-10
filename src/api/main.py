@@ -10,42 +10,61 @@ from src.api.routers import (
     chat,
     co_writer,
     dashboard,
+    debug,
     embedding_provider,
+    exam_simulator,
     guide,
     ideagen,
     knowledge,
     llm_provider,
+    memory,
+    metrics,
     notebook,
     question,
     research,
     settings,
     solve,
+    sprint,
     system,
+    voice,
 )
 from src.logging import get_logger
 
+from src.api.middleware import add_trace_middleware
+
 logger = get_logger("API")
 
+app = FastAPI(title="DeepTutor API", version="1.0.0")
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Application lifecycle management
-    Gracefully handle startup and shutdown events, avoid CancelledError
-    """
-    # Execute on startup
+add_trace_middleware(app)
+
+
+@app.on_event("startup")
+async def startup_event():
     logger.info("Application startup")
-    yield
-    # Execute on shutdown
-    logger.info("Application shutdown")
+    # Run startup health check
+    try:
+        from src.services.degradation import get_degradation_service
 
+        service = get_degradation_service()
+        import asyncio
 
-app = FastAPI(title="DeepTutor API", version="1.0.0", lifespan=lifespan)
+        results = await service.run_health_check()
+        healthy_count = sum(1 for s in results.values() if s.healthy)
+        total_count = len(results)
+        logger.info(f"Health check: {healthy_count}/{total_count} components healthy")
+        if healthy_count < total_count:
+            degraded = [c.value for c, s in results.items() if not s.healthy]
+            logger.warning(f"Degraded components: {', '.join(degraded)}")
+        service.start_background_monitoring()
+    except Exception as e:
+        logger.warning(f"Health check skipped: {e}")
+
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific frontend origin
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -86,11 +105,32 @@ app.include_router(system.router, prefix="/api/v1/system", tags=["system"])
 app.include_router(llm_provider.router, prefix="/api/v1/config/llm", tags=["config"])
 app.include_router(embedding_provider.router, prefix="/api/v1/config/embedding", tags=["config"])
 app.include_router(agent_config.router, prefix="/api/v1/config", tags=["config"])
+app.include_router(voice.router, prefix="/api/v1", tags=["voice"])
+app.include_router(memory.router, prefix="/api/v1/memory", tags=["memory"])
+app.include_router(sprint.router, prefix="/api/v1/sprint", tags=["sprint"])
+app.include_router(metrics.router, prefix="/api/v1/dashboard", tags=["dashboard"])
+app.include_router(debug.router, prefix="/api/v1", tags=["debug"])
+app.include_router(exam_simulator.router, prefix="/api/v1/exam", tags=["exam"])
 
 
 @app.get("/")
 async def root():
     return {"message": "Welcome to DeepTutor API"}
+
+
+@app.get("/api/v1/health")
+async def health_check():
+    """
+    Simple health check endpoint for connection testing.
+    Returns basic status for monitoring and client connection tests.
+    """
+    from datetime import datetime
+
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "version": "1.0.0",
+    }
 
 
 if __name__ == "__main__":

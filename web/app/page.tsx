@@ -19,6 +19,7 @@ import {
   Edit3,
   GraduationCap,
   PenTool,
+  BarChart3,
 } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -91,6 +92,20 @@ export default function HomePage() {
   };
 
   const quickActions = [
+    {
+      icon: BarChart3,
+      label: t("Progress Dashboard"),
+      href: "/dashboard",
+      color: "blue",
+      description: "Stats & analytics",
+    },
+    {
+      icon: Target,
+      label: t("Study Sprint Planner"),
+      href: "/sprint",
+      color: "blue",
+      description: "21-day learning plans",
+    },
     {
       icon: Calculator,
       label: t("Smart Problem Solving"),

@@ -1,0 +1,162 @@
+subject: physics
+display_name: Physics
+hsc_band: 6
+description: Band 6 represents excellent achievement in Physics.
+dimensions:
+- name: Clarity of Expression
+  weight: 0.15
+  description: Clear physics expression
+  criteria:
+  - id: cl1
+    description: Physics terminology
+    indicators:
+    - Correct terms
+    - Symbols and units
+    - Mathematical notation
+    pass_threshold: 0.9
+  - id: cl2
+    description: Explains concepts
+    indicators:
+    - Logical structure
+    - Scientific language
+    - Step-by-step
+    pass_threshold: 0.85
+  - id: cl3
+    description: Complex ideas
+    indicators:
+    - Appropriate analogies
+    - Underlying principles
+    - Clear descriptions
+    pass_threshold: 0.8
+- name: Physics Accuracy
+  weight: 0.25
+  description: Accurate physics knowledge
+  criteria:
+  - id: ac1
+    description: Accurate knowledge
+    indicators:
+    - Correct principles
+    - Concepts accurate
+    - No misconceptions
+    pass_threshold: 0.9
+  - id: ac2
+    description: Accurate calculations
+    indicators:
+    - Correct formulas
+    - Accurate substitutions
+    - Correct answers
+    pass_threshold: 0.9
+  - id: ac3
+    description: Units and figures
+    indicators:
+    - Appropriate units
+    - Correct sig figs
+    - Consistent units
+    pass_threshold: 0.9
+- name: Depth of Understanding
+  weight: 0.2
+  description: Sophisticated understanding
+  criteria:
+  - id: dp1
+    description: Underlying principles
+    indicators:
+    - Explains why laws work
+    - Fundamental principles
+    - Assumptions understood
+    pass_threshold: 0.85
+  - id: dp2
+    description: Unfamiliar situations
+    indicators:
+    - Adapts principles
+    - Novel problems
+    - Reasonable approximations
+    pass_threshold: 0.85
+  - id: dp3
+    description: Contemporary physics
+    indicators:
+    - Current developments
+    - Quantum frontiers
+    - Implications considered
+    pass_threshold: 0.75
+- name: Use of Evidence
+  weight: 0.15
+  description: Effective use of evidence
+  criteria:
+  - id: ev1
+    description: Data and graphs
+    indicators:
+    - Graph interpretation
+    - Slope analysis
+    - Area under graphs
+    pass_threshold: 0.85
+  - id: ev2
+    description: Evidence support
+    indicators:
+    - Evidence to principles
+    - Data reliability
+    - Error sources
+    pass_threshold: 0.8
+  - id: ev3
+    description: Mandatory experiments
+    indicators:
+    - References experiments
+    - Understands physics
+    - Theory to experiment
+    pass_threshold: 0.8
+- name: Solution Structure
+  weight: 0.15
+  description: Well-organised solutions
+  criteria:
+  - id: st1
+    description: Givens and unknowns
+    indicators:
+    - Lists givens with units
+    - Identifies unknown
+    - Relevant formulas
+    pass_threshold: 0.9
+  - id: st2
+    description: Logical solution
+    indicators:
+    - Working shown
+    - Logical sequence
+    - Intermediate results
+    pass_threshold: 0.85
+  - id: st3
+    description: Clear answer
+    indicators:
+    - Final answer with units
+    - Checks reasonableness
+    - Considers limiting cases
+    pass_threshold: 0.85
+- name: Subject-Specific
+  weight: 0.1
+  description: Physics criteria
+  criteria:
+  - id: ss1
+    description: Core modules
+    indicators:
+    - Mechanics
+    - Waves
+    - Electromagnetism
+    pass_threshold: 0.85
+  - id: ss2
+    description: Graphical analysis
+    indicators:
+    - Motion graphs
+    - Wave graphs
+    - Finding relationships
+    pass_threshold: 0.85
+  - id: ss3
+    description: Physics in society
+    indicators:
+    - Environmental impacts
+    - Technological applications
+    - Daily life
+    pass_threshold: 0.75
+band_thresholds:
+  band_6: 90
+  band_5: 80
+  band_4: 70
+  band_3: 60
+  band_2: 50
+  band_1: 0

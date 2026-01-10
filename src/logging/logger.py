@@ -669,3 +669,364 @@ def reset_logger(name: Optional[str] = None):
         _loggers.clear()
     elif name in _loggers:
         del _loggers[name]
+
+
+# =============================================================================
+# Structured JSON Logging (PID-34)
+# =============================================================================
+
+
+class StructuredFileFormatter(logging.Formatter):
+    """
+    JSON formatter for structured logging with trace support.
+
+    Output format:
+    {
+        "timestamp": "2024-01-15T10:30:00.000Z",
+        "level": "INFO",
+        "trace_id": "abc123-def456",
+        "span_id": "span789",
+        "module": "Solver",
+        "message": "Processing request",
+        "component": "api",
+        "operation": "solve",
+        "latency_ms": 150.5,
+        "extra": {...}
+    }
+    """
+
+    def __init__(self, include_extra: bool = True):
+        super().__init__(datefmt="%Y-%m-%dT%H:%M:%S.%fZ")
+        self.include_extra = include_extra
+
+    def format(self, record: logging.LogRecord) -> str:
+        from datetime import datetime, timezone
+
+        trace_id = getattr(record, "trace_id", None)
+        if not trace_id:
+            try:
+                from .trace import get_trace_context
+
+                ctx = get_trace_context()
+                trace_id = ctx.trace_id if ctx else None
+            except ImportError:
+                pass
+
+        span_id = getattr(record, "span_id", None)
+
+        log_entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "module": getattr(record, "module_name", record.name),
+        }
+
+        if trace_id:
+            log_entry["trace_id"] = trace_id
+        if span_id:
+            log_entry["span_id"] = span_id
+
+        if hasattr(record, "elapsed_ms"):
+            log_entry["latency_ms"] = record.elapsed_ms
+
+        if hasattr(record, "component"):
+            log_entry["component"] = record.component
+        if hasattr(record, "operation"):
+            log_entry["operation"] = record.operation
+
+        if self.include_extra:
+            extra_fields = {}
+            for key, value in record.__dict__.items():
+                if key not in (
+                    "name",
+                    "msg",
+                    "args",
+                    "created",
+                    "filename",
+                    "funcName",
+                    "levelname",
+                    "levelno",
+                    "lineno",
+                    "module",
+                    "msecs",
+                    "pathname",
+                    "process",
+                    "processName",
+                    "relativeCreated",
+                    "exc_info",
+                    "exc_text",
+                    "stack_info",
+                    "module_name",
+                    "symbol",
+                    "display_level",
+                ):
+                    try:
+                        extra_fields[key] = str(value)
+                    except Exception:
+                        pass
+            if extra_fields:
+                log_entry["extra"] = extra_fields
+
+        if record.exc_info:
+            log_entry["error"] = self.formatException(record.exc_info)
+
+        return json.dumps(log_entry, ensure_ascii=False)
+
+
+class StructuredLogger:
+    """Logger with structured JSON logging and trace support."""
+
+    def __init__(self, name: str, structured_file: bool = True, **kwargs):
+        self.name = name
+        self._logger = logging.getLogger(f"structured.{name}")
+        self._logger.setLevel(logging.DEBUG)
+        self._logger.handlers.clear()
+        self._logger.propagate = False
+
+        if kwargs.get("log_dir") is None:
+            project_root = Path(__file__).resolve().parent.parent.parent
+            log_dir = project_root / "data" / "user" / "logs"
+        else:
+            log_dir = Path(kwargs["log_dir"])
+            if not log_dir.is_absolute():
+                project_root = Path(__file__).resolve().parent.parent.parent
+                log_dir = project_root / str(log_dir)
+
+        log_dir.mkdir(parents=True, exist_ok=True)
+
+        if structured_file:
+            timestamp = datetime.now().strftime("%Y%m%d")
+            json_log_file = log_dir / f"structured_{timestamp}.log"
+
+            file_handler = logging.FileHandler(str(json_log_file), encoding="utf-8")
+            file_handler.setLevel(logging.DEBUG)
+            file_handler.setFormatter(StructuredFileFormatter())
+            self._logger.addHandler(file_handler)
+
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.ERROR)
+        console_handler.setFormatter(ConsoleFormatter())
+        self._logger.addHandler(console_handler)
+
+    def _log(
+        self,
+        level: int,
+        message: str,
+        trace_id: Optional[str] = None,
+        span_id: Optional[str] = None,
+        component: Optional[str] = None,
+        operation: Optional[str] = None,
+        elapsed_ms: Optional[float] = None,
+        **kwargs,
+    ):
+        if not trace_id:
+            try:
+                from .trace import get_trace_context
+
+                ctx = get_trace_context()
+                if ctx:
+                    trace_id = ctx.trace_id
+                    span_id = ctx.span_id
+                    if not component:
+                        component = ctx.component
+                    if not operation:
+                        operation = ctx.operation
+            except ImportError:
+                pass
+
+        extra = {
+            "module_name": self.name,
+            "trace_id": trace_id,
+            "span_id": span_id,
+            "component": component,
+            "operation": operation,
+        }
+        if elapsed_ms is not None:
+            extra["elapsed_ms"] = elapsed_ms
+
+        self._logger.log(level, message, extra=extra, **kwargs)
+
+    def debug(self, message: str, **kwargs):
+        self._log(logging.DEBUG, message, **kwargs)
+
+    def info(self, message: str, **kwargs):
+        self._log(logging.INFO, message, **kwargs)
+
+    def warning(self, message: str, **kwargs):
+        self._log(logging.WARNING, message, **kwargs)
+
+    def error(self, message: str, **kwargs):
+        self._log(logging.ERROR, message, **kwargs)
+
+    def exception(self, message: str, **kwargs):
+        self._logger.exception(message, extra={"module_name": self.name, **kwargs})
+
+    def success(self, message: str, **kwargs):
+        self._log(logging.INFO, message, display_level="SUCCESS", **kwargs)
+
+    def progress(self, message: str, **kwargs):
+        self._log(logging.INFO, message, display_level="PROGRESS", **kwargs)
+
+    def llm_call(
+        self,
+        model: str,
+        provider: Optional[str] = None,
+        tokens_in: Optional[int] = None,
+        tokens_out: Optional[int] = None,
+        elapsed_ms: Optional[float] = None,
+        cost: Optional[float] = None,
+        trace_id: Optional[str] = None,
+        **kwargs,
+    ):
+        message = f"LLM: {model}"
+        if provider:
+            message = f"{provider}/{message}"
+        if tokens_in is not None or tokens_out is not None:
+            message += f" [in={tokens_in or 0}, out={tokens_out or 0}]"
+        if elapsed_ms is not None:
+            message += f" {elapsed_ms:.0f}ms"
+        if cost is not None:
+            message += f" ${cost:.6f}"
+
+        self._log(
+            logging.DEBUG,
+            message,
+            trace_id=trace_id,
+            component="llm",
+            operation="call",
+            elapsed_ms=elapsed_ms,
+            model=model,
+            provider=provider,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
+            cost=cost,
+            **kwargs,
+        )
+
+    def rag_call(
+        self,
+        query: str,
+        documents_retrieved: int,
+        elapsed_ms: Optional[float] = None,
+        trace_id: Optional[str] = None,
+        **kwargs,
+    ):
+        message = f"RAG: Retrieved {documents_retrieved} documents for query"
+        self._log(
+            logging.DEBUG,
+            message,
+            trace_id=trace_id,
+            component="rag",
+            operation="retrieve",
+            elapsed_ms=elapsed_ms,
+            documents_retrieved=documents_retrieved,
+            **kwargs,
+        )
+
+    def voice_call(
+        self,
+        action: str,
+        transcript: str,
+        elapsed_ms: Optional[float] = None,
+        trace_id: Optional[str] = None,
+        **kwargs,
+    ):
+        message = f"Voice: {action}"
+        self._log(
+            logging.DEBUG,
+            message,
+            trace_id=trace_id,
+            component="voice",
+            operation="process_command",
+            elapsed_ms=elapsed_ms,
+            action=action,
+            transcript_length=len(transcript),
+            **kwargs,
+        )
+
+    def http_request(
+        self,
+        method: str,
+        path: str,
+        status_code: int,
+        latency_ms: float,
+        trace_id: Optional[str] = None,
+        error: Optional[str] = None,
+        **kwargs,
+    ):
+        level = logging.ERROR if status_code >= 400 else logging.INFO
+        message = f"{method} {path} {status_code} {latency_ms:.0f}ms"
+
+        self._log(
+            level,
+            message,
+            trace_id=trace_id,
+            component="api",
+            operation="http_request",
+            elapsed_ms=latency_ms,
+            http_method=method,
+            http_path=path,
+            http_status_code=status_code,
+            error=error,
+            **kwargs,
+        )
+
+
+def get_structured_logger(
+    name: str,
+    structured_file: bool = True,
+    **kwargs,
+) -> StructuredLogger:
+    """Get a structured logger instance."""
+    return StructuredLogger(name, structured_file=structured_file, **kwargs)
+
+
+# Export trace utilities
+from .trace import (
+    generate_trace_id,
+    generate_span_id,
+    TraceContext,
+    get_trace_context,
+    set_trace_context,
+    clear_trace_context,
+    trace_context,
+    get_trace_id,
+    set_trace_id,
+    get_trace_headers,
+    extract_trace_from_headers,
+    filter_secrets,
+    filter_dict_secrets,
+    RequestLogEntry,
+    create_request_log_entry,
+    ServiceCallEntry,
+    create_service_call_entry,
+)
+
+__all__ = [
+    "LogLevel",
+    "ConsoleFormatter",
+    "FileFormatter",
+    "StructuredFileFormatter",
+    "Logger",
+    "StructuredLogger",
+    "get_logger",
+    "get_structured_logger",
+    "reset_logger",
+    "generate_trace_id",
+    "generate_span_id",
+    "TraceContext",
+    "get_trace_context",
+    "set_trace_context",
+    "clear_trace_context",
+    "trace_context",
+    "get_trace_id",
+    "set_trace_id",
+    "get_trace_headers",
+    "extract_trace_from_headers",
+    "filter_secrets",
+    "filter_dict_secrets",
+    "RequestLogEntry",
+    "create_request_log_entry",
+    "ServiceCallEntry",
+    "create_service_call_entry",
+]

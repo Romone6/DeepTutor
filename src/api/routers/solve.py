@@ -195,6 +195,44 @@ async def websocket_solve(websocket: WebSocket):
                 final_answer = result.get("final_answer", "")
                 output_dir_str = result.get("output_dir", "")
 
+                # Integrate Maths Working Validator for math questions (Exam mode only)
+                policy_id = result.get("metadata", {}).get("policy_id", "")
+                if policy_id == "exam" and final_answer:
+                    try:
+                        from extensions.agents.maths_working_validator import (
+                            generate_mistake_check_section,
+                            detect_topic,
+                        )
+
+                        # Extract working from final_answer if present
+                        # Look for working in the markdown (between "Working:" and "Answer:")
+                        working_match = re.search(
+                            r"###?\s*Working\s*[:\n](.*?)(?=###?\s*Answer|###?\s*Final|$)",
+                            final_answer,
+                            re.DOTALL | re.IGNORECASE,
+                        )
+                        answer_match = re.search(
+                            r"###?\s*Answer\s*[:\n](.*?)(?=###?\s*|$)",
+                            final_answer,
+                            re.DOTALL | re.IGNORECASE,
+                        )
+
+                        working = working_match.group(1).strip() if working_match else ""
+                        answer = answer_match.group(1).strip() if answer_match else final_answer
+
+                        if working and len(working) > 20:
+                            topic = detect_topic(question)
+                            mistake_section = generate_mistake_check_section(
+                                question=question,
+                                working=working,
+                                answer=answer,
+                                topic=topic,
+                            )
+                            final_answer = f"{final_answer}\n\n{mistake_section}"
+                            logger.debug(f"[{task_id}] Added Mistake Check section")
+                    except Exception as e:
+                        logger.debug(f"[{task_id}] Could not add Mistake Check: {e}")
+
                 if output_dir_str and final_answer:
                     try:
                         output_dir = Path(output_dir_str)

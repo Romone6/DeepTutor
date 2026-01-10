@@ -3,23 +3,55 @@
 // Get API base URL from environment variable
 // This is automatically set by start_web.py based on config/main.yaml
 // The .env.local file is auto-generated on startup with the correct backend port
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE ||
-  (() => {
-    if (typeof window !== "undefined") {
-      console.error("NEXT_PUBLIC_API_BASE is not set.");
-      console.error(
-        "Please configure server ports in config/main.yaml and restart the application using: python scripts/start_web.py",
-      );
-      console.error(
-        "The .env.local file will be automatically generated with the correct backend port.",
-      );
+// Can be overridden by localStorage for remote backend (LAN mode)
+export const getBackendBaseUrl = (): string => {
+  if (typeof window !== "undefined") {
+    // Check localStorage for remote backend override
+    const storedUrl = localStorage.getItem("deeptutor-backend-url");
+    if (storedUrl && storedUrl.trim()) {
+      return storedUrl;
     }
-    // No fallback - port must be configured in config/main.yaml
-    throw new Error(
-      "NEXT_PUBLIC_API_BASE is not configured. Please set server ports in config/main.yaml and restart.",
-    );
-  })();
+  }
+  return process.env.NEXT_PUBLIC_API_BASE || "";
+};
+
+export const API_BASE_URL = getBackendBaseUrl();
+
+/**
+ * Set the backend URL (for remote backend / LAN mode)
+ * @param url - The backend URL to use
+ */
+export function setBackendBaseUrl(url: string): void {
+  if (typeof window !== "undefined") {
+    if (url && url.trim()) {
+      localStorage.setItem("deeptutor-backend-url", url.trim());
+    } else {
+      localStorage.removeItem("deeptutor-backend-url");
+    }
+    // Force reload to apply the new URL
+    window.location.reload();
+  }
+}
+
+/**
+ * Check if a custom backend URL is configured
+ */
+export function isUsingRemoteBackend(): boolean {
+  if (typeof window !== "undefined") {
+    return !!localStorage.getItem("deeptutor-backend-url");
+  }
+  return false;
+}
+
+/**
+ * Get the stored backend URL without triggering reload
+ */
+export function getStoredBackendUrl(): string | null {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("deeptutor-backend-url");
+  }
+  return null;
+}
 
 /**
  * Construct a full API URL from a path
@@ -27,15 +59,20 @@ export const API_BASE_URL =
  * @returns Full URL (e.g., 'http://localhost:8000/api/v1/knowledge/list')
  */
 export function apiUrl(path: string): string {
+  const base = getBackendBaseUrl();
+  if (!base) {
+    throw new Error(
+      "Backend URL not configured. Please set NEXT_PUBLIC_API_BASE in .env.local or configure a remote backend in Settings.",
+    );
+  }
+
   // Remove leading slash if present to avoid double slashes
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
   // Remove trailing slash from base URL if present
-  const base = API_BASE_URL.endsWith("/")
-    ? API_BASE_URL.slice(0, -1)
-    : API_BASE_URL;
+  const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
 
-  return `${base}${normalizedPath}`;
+  return `${normalizedBase}${normalizedPath}`;
 }
 
 /**
@@ -45,9 +82,13 @@ export function apiUrl(path: string): string {
  * Note: backend_port is configured in config/main.yaml
  */
 export function wsUrl(path: string): string {
-  // Security Hardening: Convert http to ws and https to wss.
-  // In production environments (where API_BASE_URL starts with https), this ensures secure websockets.
-  const base = API_BASE_URL.replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+  const base = getBackendBaseUrl().replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+
+  if (!base) {
+    throw new Error(
+      "Backend URL not configured. Please set NEXT_PUBLIC_API_BASE in .env.local or configure a remote backend in Settings.",
+    );
+  }
 
   // Remove leading slash if present to avoid double slashes
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;

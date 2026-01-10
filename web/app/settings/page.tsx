@@ -26,11 +26,18 @@ import {
   XCircle,
   Info,
   Sliders,
+  Wifi,
+  WifiOff,
+  Plug,
+  Link,
+  Globe2,
+  HardDrive,
 } from "lucide-react";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, getBackendBaseUrl, setBackendBaseUrl, isUsingRemoteBackend } from "@/lib/api";
 import { getTranslation } from "@/lib/i18n";
 import { setTheme } from "@/lib/theme";
 import { debounce } from "@/lib/debounce";
+import { useConnectionTest } from "@/hooks/useConnectionTest";
 
 import { useGlobal } from "@/context/GlobalContext";
 
@@ -132,7 +139,7 @@ interface LLMProvider {
 }
 
 // Tab types
-type SettingsTab = "general" | "environment" | "llm_providers";
+type SettingsTab = "general" | "environment" | "llm_providers" | "remote_backend";
 
 export default function SettingsPage() {
   const { uiSettings, refreshSettings } = useGlobal();
@@ -312,6 +319,22 @@ export default function SettingsPage() {
   const [originalProviderName, setOriginalProviderName] = useState<
     string | null
   >(null);
+
+  // Remote Backend state
+  const [remoteBackendUrl, setRemoteBackendUrl] = useState("");
+  const [isRemoteMode, setIsRemoteMode] = useState(false);
+  const [savingBackend, setSavingBackend] = useState(false);
+  const [backendSaveSuccess, setBackendSaveSuccess] = useState(false);
+  const { testConnection, isTesting, results, clearResults } = useConnectionTest();
+
+  // Initialize remote backend URL from localStorage
+  useEffect(() => {
+    const storedUrl = localStorage.getItem("deeptutor-backend-url");
+    if (storedUrl) {
+      setRemoteBackendUrl(storedUrl);
+      setIsRemoteMode(true);
+    }
+  }, []);
 
   // Create debounced theme save function
   const debouncedSaveTheme = useRef(
@@ -971,6 +994,17 @@ export default function SettingsPage() {
           >
             <Brain className="w-4 h-4" />
             LLM Providers
+          </button>
+          <button
+            onClick={() => setActiveTab("remote_backend")}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "remote_backend"
+                ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+            }`}
+          >
+            <Globe2 className="w-4 h-4" />
+            Remote Backend
           </button>
         </div>
 
@@ -1949,6 +1983,248 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Remote Backend Tab */}
+        {activeTab === "remote_backend" && (
+          <div className="space-y-4">
+            {/* Connection Status Overview */}
+            <section className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Globe2 className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                  <h2 className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                    Connection Status
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isRemoteMode ? (
+                    <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs rounded-full flex items-center gap-1">
+                      <Wifi className="w-3 h-3" />
+                      Remote Mode
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-full flex items-center gap-1">
+                      <HardDrive className="w-3 h-3" />
+                      Local Mode
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg text-xs text-blue-700 dark:text-blue-300 flex items-start gap-2">
+                  <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <p>
+                    Connect to a Windows PC running DeepTutor over your local network.
+                    Enter the IP address or hostname of your Windows machine followed by the port.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Remote Backend URL Configuration */}
+            <section className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
+                <Link className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                <h2 className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                  Remote Backend URL
+                </h2>
+              </div>
+              <div className="p-4 space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
+                    Backend URL
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={remoteBackendUrl}
+                      onChange={(e) => handleRemoteBackendUrlChange(e.target.value)}
+                      placeholder={getDefaultBackendUrl()}
+                      className="flex-1 p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-slate-100 font-mono placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    />
+                    <button
+                      onClick={handleTestConnection}
+                      disabled={isTesting || !remoteBackendUrl.trim()}
+                      className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50 transition-colors"
+                    >
+                      {isTesting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Wifi className="w-4 h-4" />
+                      )}
+                      Test
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+                    Example: http://192.168.1.100:8000 or http://your-pc-name.local:8000
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSaveRemoteBackend}
+                    disabled={savingBackend}
+                    className={`flex-1 py-2.5 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${
+                      savingBackend
+                        ? "bg-slate-100 dark:bg-slate-700 text-slate-400"
+                        : backendSaveSuccess
+                          ? "bg-green-500 text-white"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  >
+                    {savingBackend ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : backendSaveSuccess ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Plug className="w-4 h-4" />
+                    )}
+                    {backendSaveSuccess
+                      ? "Connected!"
+                      : isRemoteMode
+                        ? "Update Connection"
+                        : "Connect to Remote Backend"}
+                  </button>
+
+                  {isRemoteMode && (
+                    <button
+                      onClick={handleClearRemoteBackend}
+                      className="px-4 py-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                    >
+                      <WifiOff className="w-4 h-4" />
+                      Disconnect
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setRemoteBackendUrl(getDefaultBackendUrl())}
+                  className="w-full py-2 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                >
+                  Reset to default (localhost)
+                </button>
+              </div>
+            </section>
+
+            {/* Connection Test Results */}
+            {results && (
+              <section className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wifi className={`w-4 h-4 ${
+                      results.overall === "connected"
+                        ? "text-green-500"
+                        : results.overall === "partial"
+                          ? "text-amber-500"
+                          : "text-red-500"
+                    }`} />
+                    <h2 className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                      Connection Test Results
+                    </h2>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                    results.overall === "connected"
+                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                      : results.overall === "partial"
+                        ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
+                        : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                  }`}>
+                    {results.overall === "connected"
+                      ? "All Services OK"
+                      : results.overall === "partial"
+                        ? "Partial Connection"
+                        : "Disconnected"}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {results.services.map((service) => (
+                      <div
+                        key={service.name}
+                        className={`p-3 rounded-lg border ${
+                          service.status === "healthy"
+                            ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                            : service.status === "checking"
+                              ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+                              : service.status === "unhealthy"
+                                ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
+                                : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                            {service.name}
+                          </span>
+                          {service.status === "healthy" && (
+                            <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                          )}
+                          {service.status === "error" && (
+                            <AlertCircle className="w-3.5 h-3.5 text-red-500" />
+                          )}
+                          {service.status === "unhealthy" && (
+                            <XCircle className="w-3.5 h-3.5 text-amber-500" />
+                          )}
+                          {service.status === "checking" && (
+                            <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />
+                          )}
+                        </div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                          {service.status === "healthy" && service.latency && (
+                            <span>{service.latency}ms latency</span>
+                          )}
+                          {service.status === "error" && service.error && (
+                            <span className="text-red-600 dark:text-red-400">{service.error}</span>
+                          )}
+                          {service.status === "unhealthy" && service.error && (
+                            <span className="text-amber-600 dark:text-amber-400">{service.error}</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                      Tested: {results.backendUrl} at {new Date(results.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Windows Firewall Setup Guide */}
+            <section className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                <h2 className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                  Windows Firewall Setup
+                </h2>
+              </div>
+              <div className="p-4 text-xs text-slate-600 dark:text-slate-400 space-y-3">
+                <p>
+                  On your Windows PC, you need to allow inbound connections to DeepTutor:
+                </p>
+                <ol className="list-decimal list-inside space-y-2 ml-1">
+                  <li>Open <strong>Windows Defender Firewall</strong> (wf.msc)</li>
+                  <li>Click <strong>Inbound Rules</strong> &gt; <strong>New Rule...</strong></li>
+                  <li>Select <strong>Port</strong> as rule type</li>
+                  <li>Enter the port DeepTutor is running on (default: 8000)</li>
+                  <li>Select <strong>TCP</strong> protocol</li>
+                  <li>Allow the connection</li>
+                  <li>Give it a name like "DeepTutor API"</li>
+                </ol>
+                <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <p className="text-amber-700 dark:text-amber-300 font-medium mb-1">
+                    Security Note
+                  </p>
+                  <p>
+                    This opens your PC to the local network. Only allow on private networks
+                    (home/work networks). Avoid on public WiFi.
+                  </p>
+                </div>
+              </div>
+            </section>
           </div>
         )}
       </div>

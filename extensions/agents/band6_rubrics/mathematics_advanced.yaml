@@ -1,0 +1,162 @@
+subject: mathematics_advanced
+display_name: Mathematics Advanced
+hsc_band: 6
+description: Band 6 represents excellent achievement in Mathematics Advanced.
+dimensions:
+- name: Clarity of Expression
+  weight: 0.15
+  description: Clear and precise expression
+  criteria:
+  - id: cl1
+    description: Correct notation
+    indicators:
+    - Correct symbols
+    - Proper function notation
+    - Accurate terms
+    pass_threshold: 0.9
+  - id: cl2
+    description: Logical presentation
+    indicators:
+    - Logical sequence
+    - Working shown
+    - Clear steps
+    pass_threshold: 0.85
+  - id: cl3
+    description: Mathematical reasoning
+    indicators:
+    - Explains reasoning
+    - States assumptions
+    - Justifies steps
+    pass_threshold: 0.8
+- name: Mathematical Accuracy
+  weight: 0.25
+  description: Correct calculations
+  criteria:
+  - id: ac1
+    description: Accurate calculations
+    indicators:
+    - Correct arithmetic
+    - Algebra correct
+    - No errors
+    pass_threshold: 0.9
+  - id: ac2
+    description: Correct solutions
+    indicators:
+    - Final answers correct
+    - Appropriate solutions
+    - Verified
+    pass_threshold: 0.9
+  - id: ac3
+    description: Appropriate techniques
+    indicators:
+    - Correct method
+    - Formulas selected
+    - Techniques applied
+    pass_threshold: 0.85
+- name: Depth of Understanding
+  weight: 0.2
+  description: Sophisticated understanding
+  criteria:
+  - id: dp1
+    description: Concept understanding
+    indicators:
+    - Explains why
+    - Insight into relationships
+    - Connections made
+    pass_threshold: 0.8
+  - id: dp2
+    description: Unfamiliar situations
+    indicators:
+    - Adapts methods
+    - Models situations
+    - Non-routine solved
+    pass_threshold: 0.8
+  - id: dp3
+    description: Reflection
+    indicators:
+    - Checks answers
+    - Alternative approaches
+    - Error identification
+    pass_threshold: 0.8
+- name: Justification
+  weight: 0.15
+  description: Appropriate justification
+  criteria:
+  - id: ev1
+    description: Appropriate justification
+    indicators:
+    - States reasons
+    - Explains steps
+    - Logical reasoning
+    pass_threshold: 0.8
+  - id: ev2
+    description: Theorems and properties
+    indicators:
+    - Cites theorems
+    - Applies properties
+    - Maintains rigour
+    pass_threshold: 0.85
+  - id: ev3
+    description: Interprets results
+    indicators:
+    - Explains meaning
+    - Considers context
+    - Discusses limitations
+    pass_threshold: 0.8
+- name: Solution Structure
+  weight: 0.15
+  description: Well-organised solutions
+  criteria:
+  - id: st1
+    description: Clear approach
+    indicators:
+    - States givens
+    - Identifies unknown
+    - States method
+    pass_threshold: 0.85
+  - id: st2
+    description: Logical progression
+    indicators:
+    - Steps logical
+    - Intermediate results
+    - Clear transitions
+    pass_threshold: 0.85
+  - id: st3
+    description: Clear answer
+    indicators:
+    - Final answer stated
+    - Units included
+    - Correct accuracy
+    pass_threshold: 0.9
+- name: Subject-Specific
+  weight: 0.1
+  description: Mathematics criteria
+  criteria:
+  - id: ss1
+    description: Calculus proficiency
+    indicators:
+    - Differentiation
+    - Integration
+    - Applications
+    pass_threshold: 0.85
+  - id: ss2
+    description: Statistical understanding
+    indicators:
+    - Probability
+    - Inference
+    - Data interpretation
+    pass_threshold: 0.8
+  - id: ss3
+    description: Modelling skills
+    indicators:
+    - Formulates models
+    - Solves problems
+    - Evaluates models
+    pass_threshold: 0.8
+band_thresholds:
+  band_6: 90
+  band_5: 80
+  band_4: 70
+  band_3: 60
+  band_2: 50
+  band_1: 0

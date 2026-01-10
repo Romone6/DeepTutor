@@ -1,0 +1,203 @@
+# Band 6 Rubric - English Advanced
+# NESA HSC English Advanced Criteria
+
+subject: "english_advanced"
+display_name: "English Advanced"
+hsc_band: 6
+
+description: |
+  Band 6 represents excellent achievement. The student demonstrates extensive knowledge,
+  understanding and sophisticated skill in responding to and composing texts. They communicate
+  complex ideas clearly and accurately in a range of forms and styles.
+
+dimensions:
+  - name: "Clarity of Expression"
+    description: "Clear, precise, and sophisticated expression"
+    weight: 0.15
+    criteria:
+      - id: "cl1"
+        description: "Uses sophisticated vocabulary with precise word choice"
+        indicators:
+          - "Varied and precise lexical choices"
+          - "Avoids repetition and cliché"
+          - "Technical terminology used correctly"
+        pass_threshold: 0.7
+      - id: "cl2"
+        description: "Constructs complex sentence structures effectively"
+        indicators:
+          - "Varied sentence length and structure"
+          - "Effective use of subordination and coordination"
+          - "Smooth transitions between ideas"
+        pass_threshold: 0.7
+      - id: "cl3"
+        description: "Communicates complex ideas clearly"
+        indicators:
+          - "Logical progression of ideas"
+          - "Clear topic sentences and paragraph structure"
+          - "Effective summarisation of arguments"
+        pass_threshold: 0.7
+
+  - name: "Textual Accuracy"
+    description: "Accurate and precise textual analysis"
+    weight: 0.15
+    criteria:
+      - id: "ac1"
+        description: "Accurate representation of textual content"
+        indicators:
+          - "Correct identification of techniques"
+          - "No factual errors about text content"
+          - "Appropriate context provided"
+        pass_threshold: 0.8
+      - id: "ac2"
+        description: "Precise technique identification and naming"
+        indicators:
+          - "Correct terminology (metaphor, simile, etc.)"
+          - "Accurate identification of form"
+          - "Appropriate structural analysis"
+        pass_threshold: 0.8
+      - id: "ac3"
+        description: "Accurate interpretation of meaning"
+        indicators:
+          - "Thoughtful interpretation of themes"
+          - "No misreading of author's purpose"
+          - "Consistent with textual evidence"
+        pass_threshold: 0.8
+
+  - name: "Depth of Analysis"
+    description: "Sophisticated and insightful analysis"
+    weight: 0.20
+    criteria:
+      - id: "dp1"
+        description: "Explores multiple layers of meaning"
+        indicators:
+          - "Surface and deeper meanings explored"
+          - "Consideration of subtext and implication"
+          - "Multiple interpretations acknowledged"
+        pass_threshold: 0.7
+      - id: "dp2"
+        description: "Demonstrates critical thinking"
+        indicators:
+          - "Evaluates effectiveness of techniques"
+          - "Considers author's purpose and context"
+          - "Makes original observations"
+        pass_threshold: 0.7
+      - id: "dp3"
+        description: "Synthesises ideas across the text"
+        indicators:
+          - "Connections between sections identified"
+          - "Thematic links across the text"
+          - "Cohesive understanding demonstrated"
+        pass_threshold: 0.7
+
+  - name: "Use of Evidence"
+    description: "Effective and integrated textual evidence"
+    weight: 0.20
+    criteria:
+      - id: "ev1"
+        description: "Selects relevant and effective evidence"
+        indicators:
+          - "Quote supports the argument"
+          - "Evidence is well-chosen and purposeful"
+          - "Balanced use of short and long quotes"
+        pass_threshold: 0.7
+      - id: "ev2"
+        description: "Analyses evidence effectively"
+        indicators:
+          - "Explains how evidence supports argument"
+          - "Breaks down language techniques in quotes"
+          - "Links evidence to broader themes"
+        pass_threshold: 0.7
+      - id: "ev3"
+        description: "Integrates evidence seamlessly"
+        indicators:
+          - "Smooth introduction of quotes"
+          - "Effective embedding of quotes in sentences"
+          - "Evidence flows with the argument"
+        pass_threshold: 0.7
+
+  - name: "Structural Effectiveness"
+    description: "Well-organised and coherent response"
+    weight: 0.15
+    criteria:
+      - id: "st1"
+        description: "Clear thesis and argument direction"
+        indicators:
+          - "Contestable thesis statement"
+          - "Direction clearly established early"
+          - "Maintains focus on the question"
+        pass_threshold: 0.7
+      - id: "st2"
+        description: "Logical paragraph structure (TEEL/PEEL)"
+        indicators:
+          - "Topic sentence present"
+          - "Explanation and analysis follow"
+          - "Evidence integrated effectively"
+          - "Link back to thesis"
+        pass_threshold: 0.7
+      - id: "st3"
+        description: "Effective introduction and conclusion"
+        indicators:
+          - "Hook and context in introduction"
+          - "Summarises key arguments"
+          - "Final thought or recommendation"
+        pass_threshold: 0.7
+
+  - name: "Subject-Specific Requirements"
+    description: "English Advanced specific criteria"
+    weight: 0.15
+    criteria:
+      - id: "ss1"
+        description: "Compositional quality (for own writing)"
+        indicators:
+          - "Sophisticated voice and tone"
+          - "Purposeful structural choices"
+          - "Imaginative and engaging content"
+        pass_threshold: 0.7
+      - id: "ss2"
+        description: "Understanding of textual forms and features"
+        indicators:
+          - "Awareness of genre conventions"
+          - "Appropriate register and style"
+          - "Effective use of form for purpose"
+        pass_threshold: 0.7
+      - id: "ss3"
+        description: "Critical literacy and intertextual awareness"
+        indicators:
+          - "Consideration of context"
+          - "Awareness of other interpretations"
+          - "Connections to broader contexts"
+        pass_threshold: 0.7
+
+band_thresholds:
+  band_6: 90
+  band_5: 80
+  band_4: 70
+  band_3: 60
+  band_2: 50
+  band_1: 0
+
+improvement_tips:
+  clarity:
+    - "Use a thesaurus to find more precise vocabulary"
+    - "Vary your sentence structure - mix short and long sentences"
+    - "Read your work aloud to check for flow"
+  accuracy:
+    - "Double-check technique names before using them"
+    - "Ensure quotes are accurately transcribed"
+    - "Review your understanding of the text's context"
+  depth:
+    - "Ask 'so what?' after each point to push deeper"
+    - "Consider multiple perspectives on the same issue"
+    - "Look for patterns across the text"
+  evidence:
+    - "Choose quotes that do heavy lifting for your argument"
+    - "Always explain HOW a quote supports your point"
+    - "Use short, embedded quotes rather than long blocks"
+  structure:
+    - "Write your thesis first - it guides everything"
+    - "Each paragraph should focus on ONE main idea"
+    - "Your conclusion should add something new, not just repeat"
+  subject_specific:
+    - "Consider the composer's purpose in every technique choice"
+    - "Think about how context shapes meaning"
+    - "Make explicit connections between techniques and effects"

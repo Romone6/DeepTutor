@@ -32,6 +32,7 @@ from .provider import (
     LLMProviderManager,
     provider_manager,
 )
+from .budgeted import BudgetedLLMService, BudgetedResult, get_budgeted_service, budgeted_llm
 
 __all__ = [
     # Client
@@ -47,4 +48,9 @@ __all__ = [
     "LLMProvider",
     "LLMProviderManager",
     "provider_manager",
+    # Budgeted LLM
+    "BudgetedLLMService",
+    "BudgetedResult",
+    "get_budgeted_service",
+    "budgeted_llm",
 ]

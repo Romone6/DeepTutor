@@ -25,8 +25,8 @@ class LLMConfig:
     """LLM configuration dataclass."""
 
     model: str
-    api_key: str
-    base_url: Optional[str] = None
+    api_key: str | None = ""
+    base_url: str | None = ""
     binding: str = "openai"
     max_tokens: int = 4096
     temperature: float = 0.7
@@ -70,10 +70,10 @@ def get_llm_config() -> LLMConfig:
         print(f"⚠️ Failed to load active provider: {e}")
 
     # 2. Fallback to environment variables
-    binding = _strip_value(os.getenv("LLM_BINDING", "openai"))
+    binding = _strip_value(os.getenv("LLM_BINDING")) or "openai"
     model = _strip_value(os.getenv("LLM_MODEL"))
-    api_key = _strip_value(os.getenv("LLM_API_KEY"))
-    base_url = _strip_value(os.getenv("LLM_HOST"))
+    api_key = _strip_value(os.getenv("LLM_API_KEY")) or ""
+    base_url = _strip_value(os.getenv("LLM_HOST")) or ""
 
     # Validate required configuration
     if not model:
@@ -81,21 +81,30 @@ def get_llm_config() -> LLMConfig:
             "Error: LLM_MODEL not set, please configure it in .env file or activate a provider"
         )
 
-    # Check if API key is required
+    # Check if API key is required (not required for Ollama/lollms)
     requires_key = os.getenv("LLM_API_KEY_REQUIRED", "true").lower() == "true"
+
+    # Ollama and lollms don't require API keys by default
+    if binding in ("ollama", "lollms"):
+        requires_key = False
 
     if requires_key and not api_key:
         raise ValueError(
             "Error: LLM_API_KEY not set, please configure it in .env file or activate a provider"
         )
+
+    # For Ollama, base_url is often optional (defaults to localhost:11434)
     if not base_url:
-        raise ValueError(
-            "Error: LLM_HOST not set, please configure it in .env file or activate a provider"
-        )
+        if binding == "ollama":
+            base_url = "http://localhost:11434/v1"
+        else:
+            raise ValueError(
+                "Error: LLM_HOST not set, please configure it in .env file or activate a provider"
+            )
 
     return LLMConfig(
-        binding=binding,
-        model=model,
+        binding=binding or "openai",
+        model=model or "",
         api_key=api_key,
         base_url=base_url,
     )

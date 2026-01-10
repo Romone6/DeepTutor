@@ -1,12 +1,162 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from src.core.llm_factory import llm_complete, llm_fetch_models
 from src.services.llm.provider import LLMProvider, provider_manager
+from src.services.llm.config import get_llm_config, LLMConfig
 
 router = APIRouter()
+
+
+class LLMHealthResponse(BaseModel):
+    """Response model for LLM health check."""
+
+    status: str  # "healthy", "unhealthy", "degraded"
+    binding: str
+    model: str
+    base_url: Optional[str] = None
+    message: str = ""
+    error: Optional[str] = None
+
+
+class ProviderHealthResponse(BaseModel):
+    """Response model for individual provider health checks."""
+
+    provider: str
+    status: str  # "healthy", "unhealthy", "degraded"
+    base_url: str
+    model: Optional[str] = None
+    latency_ms: Optional[float] = None
+    message: str = ""
+    error: Optional[str] = None
+
+
+def _sanitize_base_url(base_url: str) -> str:
+    """Sanitize base URL for API calls."""
+    base_url = base_url.rstrip("/")
+
+    if "/api" in base_url and not base_url.endswith("/v1"):
+        if ":11434" in base_url or "ollama" in base_url.lower():
+            base_url = base_url.replace("/api", "/v1")
+
+    for suffix in ["/chat/completions", "/completions"]:
+        if base_url.endswith(suffix):
+            base_url = base_url[: -len(suffix)]
+
+    return base_url
+
+
+@router.get("/health", response_model=LLMHealthResponse)
+async def check_llm_health():
+    """
+    Check LLM service health and connectivity.
+
+    Returns:
+        LLMHealthResponse with status, binding, model, and any error message
+    """
+    try:
+        config = get_llm_config()
+
+        if not config.model:
+            return LLMHealthResponse(
+                status="unhealthy",
+                binding="unknown",
+                model="",
+                error="LLM_MODEL not configured",
+            )
+
+        if not config.base_url:
+            return LLMHealthResponse(
+                status="unhealthy",
+                binding=config.binding,
+                model=config.model,
+                error="LLM_HOST not configured",
+            )
+
+        base_url = _sanitize_base_url(config.base_url)
+
+        api_key_for_test = config.api_key or ""
+
+        if config.binding in ("ollama", "lollms"):
+            api_key_for_test = "sk-no-key-required"
+
+        try:
+            response = await llm_complete(
+                model=config.model,
+                prompt="Hi",
+                system_prompt="Reply with exactly 'ok'.",
+                api_key=api_key_for_test,
+                base_url=base_url,
+                binding=config.binding,
+                max_tokens=10,
+            )
+
+            if "ok" in response.lower() or not response:
+                return LLMHealthResponse(
+                    status="healthy",
+                    binding=config.binding,
+                    model=config.model,
+                    base_url=config.base_url,
+                    message=f"LLM service is responding. Model: {config.model}",
+                )
+            else:
+                return LLMHealthResponse(
+                    status="degraded",
+                    binding=config.binding,
+                    model=config.model,
+                    base_url=config.base_url,
+                    message="LLM responded but with unexpected content",
+                    error=f"Response: {response[:100]}",
+                )
+
+        except Exception as llm_error:
+            error_msg = str(llm_error)
+
+            if "connection" in error_msg.lower() or "refused" in error_msg.lower():
+                return LLMHealthResponse(
+                    status="unhealthy",
+                    binding=config.binding,
+                    model=config.model,
+                    base_url=config.base_url,
+                    error=f"Cannot connect to LLM service. Is Ollama running?",
+                )
+
+            if "model" in error_msg.lower() and (
+                "not found" in error_msg.lower() or "no such file" in error_msg.lower()
+            ):
+                return LLMHealthResponse(
+                    status="unhealthy",
+                    binding=config.binding,
+                    model=config.model,
+                    base_url=config.base_url,
+                    error=f"Model '{config.model}' not found. Pull it with: ollama pull {config.model}",
+                )
+
+            return LLMHealthResponse(
+                status="unhealthy",
+                binding=config.binding,
+                model=config.model,
+                base_url=config.base_url,
+                error=error_msg[:500],
+            )
+
+    except ValueError as ve:
+        return LLMHealthResponse(
+            status="unhealthy",
+            binding="unknown",
+            model="",
+            error=str(ve),
+        )
+
+    except Exception as e:
+        return LLMHealthResponse(
+            status="unhealthy",
+            binding="unknown",
+            model="",
+            error=f"Unexpected error: {str(e)}",
+        )
 
 
 class TestConnectionRequest(BaseModel):
@@ -136,3 +286,221 @@ async def fetch_available_models(request: TestConnectionRequest):
         return {"success": True, "models": models}
     except Exception as e:
         return {"success": False, "message": f"Failed to fetch models: {str(e)}"}
+
+
+@router.get("/health/ollama", response_model=ProviderHealthResponse)
+async def check_ollama_health():
+    """
+    Check Ollama service health and connectivity.
+
+    Returns:
+        ProviderHealthResponse with status, latency, and any error message
+    """
+    import httpx
+    import time
+
+    base_url = "http://localhost:11434"
+    start_time = time.time()
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(f"{base_url}/api/tags")
+            latency_ms = (time.time() - start_time) * 1000
+
+            if response.status_code == 200:
+                data = response.json()
+                models = [m["name"] for m in data.get("models", [])]
+
+                if models:
+                    return ProviderHealthResponse(
+                        provider="ollama",
+                        status="healthy",
+                        base_url=base_url,
+                        model=models[0],
+                        latency_ms=latency_ms,
+                        message=f"Ollama running with {len(models)} models",
+                    )
+                else:
+                    return ProviderHealthResponse(
+                        provider="ollama",
+                        status="degraded",
+                        base_url=base_url,
+                        latency_ms=latency_ms,
+                        message="Ollama running but no models loaded",
+                    )
+            else:
+                return ProviderHealthResponse(
+                    provider="ollama",
+                    status="unhealthy",
+                    base_url=base_url,
+                    latency_ms=latency_ms,
+                    error=f"HTTP {response.status_code}",
+                )
+
+    except httpx.TimeoutException:
+        return ProviderHealthResponse(
+            provider="ollama",
+            status="unhealthy",
+            base_url=base_url,
+            error="Connection timed out. Is Ollama running?",
+        )
+    except httpx.ConnectError:
+        return ProviderHealthResponse(
+            provider="ollama",
+            status="unhealthy",
+            base_url=base_url,
+            error="Connection refused. Is Ollama running on port 11434?",
+        )
+    except Exception as e:
+        return ProviderHealthResponse(
+            provider="ollama",
+            status="unhealthy",
+            base_url=base_url,
+            error=str(e)[:200],
+        )
+
+
+@router.get("/health/vllm", response_model=ProviderHealthResponse)
+async def check_vllm_health():
+    """
+    Check vLLM service health and connectivity.
+
+    Returns:
+        ProviderHealthResponse with status, latency, and any error message
+    """
+    import httpx
+    import time
+
+    base_url = "http://localhost:8000/v1"
+    start_time = time.time()
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(f"{base_url.rstrip('/v1')}/health")
+            latency_ms = (time.time() - start_time) * 1000
+
+            if response.status_code == 200:
+                return ProviderHealthResponse(
+                    provider="vllm",
+                    status="healthy",
+                    base_url=base_url,
+                    latency_ms=latency_ms,
+                    message="vLLM health check passed",
+                )
+
+    except httpx.TimeoutException:
+        pass
+    except httpx.ConnectError:
+        pass
+    except Exception:
+        pass
+
+    latency_ms = (time.time() - start_time) * 1000
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                f"{base_url}/chat/completions",
+                json={
+                    "model": "test",
+                    "messages": [{"role": "user", "content": "hi"}],
+                    "max_tokens": 5,
+                },
+            )
+            latency_ms = (time.time() - start_time) * 1000
+
+            if response.status_code == 200:
+                data = response.json()
+                model = data.get("model", "unknown")
+
+                return ProviderHealthResponse(
+                    provider="vllm",
+                    status="healthy",
+                    base_url=base_url,
+                    model=model,
+                    latency_ms=latency_ms,
+                    message=f"vLLM responding with model: {model}",
+                )
+            elif response.status_code == 404:
+                return ProviderHealthResponse(
+                    provider="vllm",
+                    status="unhealthy",
+                    base_url=base_url,
+                    latency_ms=latency_ms,
+                    error="Model 'test' not found. Check available models.",
+                )
+            else:
+                return ProviderHealthResponse(
+                    provider="vllm",
+                    status="unhealthy",
+                    base_url=base_url,
+                    latency_ms=latency_ms,
+                    error=f"HTTP {response.status_code}: {response.text[:100]}",
+                )
+
+    except httpx.TimeoutException:
+        return ProviderHealthResponse(
+            provider="vllm",
+            status="unhealthy",
+            base_url=base_url,
+            latency_ms=latency_ms,
+            error="Connection timed out. Is vLLM running on port 8000?",
+        )
+    except httpx.ConnectError:
+        return ProviderHealthResponse(
+            provider="vllm",
+            status="unhealthy",
+            base_url=base_url,
+            latency_ms=latency_ms,
+            error="Connection refused. Is vLLM running on port 8000?",
+        )
+    except Exception as e:
+        return ProviderHealthResponse(
+            provider="vllm",
+            status="unhealthy",
+            base_url=base_url,
+            latency_ms=latency_ms,
+            error=str(e)[:200],
+        )
+
+
+@router.get("/health/all", response_model=Dict[str, ProviderHealthResponse])
+async def check_all_providers_health():
+    """
+    Check health of all configured LLM providers.
+
+    Returns:
+        Dictionary mapping provider names to health responses
+    """
+    import asyncio
+
+    ollama_task = check_ollama_health()
+    vllm_task = check_vllm_health()
+
+    ollama_result, vllm_result = await asyncio.gather(
+        ollama_task, vllm_task, return_exceptions=True
+    )
+
+    results = {}
+
+    if isinstance(ollama_result, Exception):
+        results["ollama"] = ProviderHealthResponse(
+            provider="ollama",
+            status="unhealthy",
+            base_url="http://localhost:11434",
+            error=str(ollama_result)[:200],
+        )
+    else:
+        results["ollama"] = ollama_result
+
+    if isinstance(vllm_result, Exception):
+        results["vllm"] = ProviderHealthResponse(
+            provider="vllm",
+            status="unhealthy",
+            base_url="http://localhost:8000/v1",
+            error=str(vllm_result)[:200],
+        )
+    else:
+        results["vllm"] = vllm_result
+
+    return results
