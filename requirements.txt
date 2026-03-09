@@ -61,15 +61,15 @@ arxiv>=2.0.0
 # ============================================
 pre-commit>=3.0.0
 llama-cloud==0.1.35
-llama-cloud-services==0.6.54
-llama-index==0.14.12
-llama-index-cli==0.5.3
-llama-index-core==0.14.12
-llama-index-embeddings-openai==0.5.1
+llama-cloud-services==0.6.94
+llama-index==0.14.15
+llama-index-cli==0.5.5
+llama-index-core==0.14.15
+llama-index-embeddings-openai==0.5.2
 llama-index-indices-managed-llama-cloud==0.9.4
-llama-index-instrumentation==0.4.2
-llama-index-llms-openai==0.6.12
+llama-index-instrumentation==0.4.3
+llama-index-llms-openai==0.6.26
 llama-index-readers-file==0.5.6
 llama-index-readers-llama-parse==0.5.1
-llama-index-workflows==2.11.6
-llama-parse==0.6.54
+llama-index-workflows==2.15.1
+llama-parse==0.6.94
